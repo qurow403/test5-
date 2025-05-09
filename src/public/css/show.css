@@ -1,0 +1,16 @@
+.btn-like {
+    font-size: 20px;
+    color: #aaa;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.btn-like.liked {
+    color: red;
+}
+
+.btn-like:hover {
+    color: #ff6666;
+}

@@ -1,0 +1,70 @@
+.register-form__content {
+    margin: 0 auto;
+    padding: 60px 15px;
+    max-width: 1230px;
+}
+
+.register-form__heading {
+    text-align: center;
+}
+
+.register-form {
+    max-width: 550px;
+    /* 入力フォームの最大幅を制限 */
+    margin: 0 auto;
+    /* 中央に配置 */
+    padding: 20px;
+    /* 会員登録と入力フォームとの間に適度な間隔を空ける */
+}
+
+.form-control {
+    width: 100%;
+    /* 入力欄を親要素の幅いっぱいに, 入力フォーム欄の横幅を広げる*/
+    padding: 10px;
+    /* 入力フォーム欄を大きくして、見やすく、入力しやすくする */
+    box-sizing: border-box;
+    /* 「padding」や「border」を含めた上での幅が 100% になる,親の 550px を超えて広がらないようにするための設定 */
+    font-size: 16px;
+    /* 文字を大きくする */
+    font-weight: bold;
+    /* 文字サイズを太字にする */
+}
+
+.register-form__group {
+    margin-bottom: 15px;
+    /* 入力フォーム欄の下に余白をつけてフォームの見栄えや配置バランスを良くする */
+}
+
+.register-form__group label {
+    font-weight: bold;
+    /* 入力フォームのタイトルを太字にする */
+}
+
+.register-form__group:nth-of-type(4) {
+    margin-bottom: 65px;
+    /* register-form__groupの四つ目のみ（確認用パスワード）に下余白を適用する*/
+}
+
+.register-form__group button,
+.register-form__group a {
+    width: 100%;
+    /* 親要素(.register-formのmax-width: 550px;)の横幅いっぱいに広げるために使う,button や a に width: 100% を指定することで → 綺麗にそろった見た目になる,「登録する」ボタンがフォーム幅いっぱいに広がる,「ログインはこちら」が同じ幅で整列する*/
+}
+
+.register-form__group button {
+    color: white;
+    background-color: red;
+    border: none;
+    /* 「登録する」ボタンの枠線を消す */
+}
+
+.register-form__group a {
+    display: block;
+    /* aタグはインライン要素(「幅」や「高さ」を自由に持てない（文字の幅分だけ)) aタグをブロック化して、幅や中央寄せを可能にする aタグがブロック要素になることで幅100%になる*/
+    text-align: center;
+    /* 「ログインはこちら」を中央に移動させる */
+    margin-top: 15px;
+    /* 「ログインはこちら」の上に余白を空けて見栄えを良くする */
+    text-decoration: none;
+    /* aタグ特有の下線を消す */
+}

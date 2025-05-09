@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
+// Itemモデル追加
+use App\Models\Item;
+
 class RouteServiceProvider extends ServiceProvider
 {
     /**
@@ -17,7 +20,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/home';
+    public const HOME = '/dashboard'; // 認証後のリダイレクト先
 
     /**
      * The controller namespace for the application.
