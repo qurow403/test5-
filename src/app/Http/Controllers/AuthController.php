@@ -30,13 +30,17 @@ class AuthController extends Controller
     public function store(RegisterRequest $request)
     {
         // ユーザーを作成して保存
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('register')->with('success', '登録成功！');
+        // 認証メール送信
+        $user->sendEmailVerificationNotification();
+
+        Auth::login($user); // 認証ページを見るにはログインが必要
+        return redirect()->route('verification.notice');
     }
 
     // ログイン画面の表示
