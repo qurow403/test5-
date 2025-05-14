@@ -19,6 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique(); // メールアドレス（一意）
             $table->timestamp('email_verified_at')->nullable(); // メール認証日時（任意）
             $table->string('password');// パスワード（ハッシュ）
+            $table->boolean('profile_completed')->default(false);
             $table->rememberToken(); // remember_token（ログイン状態保持用）
             $table->timestamps(); // created_at, updated_at
         });

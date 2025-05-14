@@ -37,6 +37,14 @@ class ProfileController extends Controller
     // プロフィール画面
     public function update(Request $request)
     {
+        $user = Auth::user();
+
+        $user->update([
+            'name' => $request->name,
+            'address' => $request->address,
+            'profile_completed' => true, // ← ここで完了フラグON
+        ]);
+
         // バリデーションして保存など
         return redirect()->route('profile.mypage')->with('success', 'プロフィールを更新しました');
     }
@@ -102,6 +110,8 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = auth()->user();
-        return view('profile.edit', compact('user'));
+        $isFirst = is_null($user->name); // 初回かどうかを判定（例）
+
+        return view('profile.edit', compact('user', 'isFirst'));
     }
 }

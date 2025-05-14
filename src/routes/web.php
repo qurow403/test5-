@@ -29,6 +29,9 @@ use App\Http\Controllers\ProfileController;
 // Itemモデル追加
 use App\Models\Item;
 
+// メール認証機能リクエスト追加
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -40,62 +43,73 @@ use App\Models\Item;
 |
 */
 
-// メール認証用ルート
+// ================================
+// メール認証ルート
+// ================================
 Route::get('/email/verify', function () {
-    return view('auth.verify-email'); // 自分でbladeを作る必要あり
+    return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
+
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    return redirect('/'); // 認証完了後の遷移先
+
+    // プロフィール未設定ならプロフィール編集画面へ、それ以外は商品一覧へ
+    if (is_null($request->user()->profile)) {
+        return redirect()->route('profile.edit');
+    }
+
+    return redirect()->route('items.index');
 })->middleware(['auth', 'signed'])->name('verification.verify');
+
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
-
-    return back()->with('message', '認証リンクを再送信しました！');
+    return back()->with('message', '確認メールを再送しました。');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
-// メール認証後ルート(プロフィール設定)
-Route::get('/mypage', [ProfileController::class, 'show'])
-    ->middleware(['auth', 'verified'])
-    ->name('profile.edit');
+// ================================
+// ゲスト用ルート（認証不要）
+// ================================
 
-// 会員登録画面
+// 会員登録
 Route::get('/register', [AuthController::class, 'register'])->name('register');
-// 会員登録の入力データ処理
 Route::post('/register', [AuthController::class, 'store'])->name('register.store');
 
-// ログイン画面
+// ログイン・ログアウト
 Route::get('/login', [AuthController::class, 'login'])->name('login');
-// ログイン情報の入力データ処理
 Route::post('/login', [AuthController::class, 'loginStore'])->name('login.store');
-// ログアウト処理
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// 商品一覧画面
+// 商品一覧・詳細（誰でも見れる）
 Route::get('/', [ItemController::class, 'index'])->name('items.index');
-
-// マイページ画面
-Route::get('/mypage', [ProfileController::class, 'show'])->name('profile.mypage');
-Route::put('/mypage/profile', [ProfileController::class, 'update'])->name('edit.update');
-
-// 商品出品画面
-Route::get('/sell', [ProfileController::class, 'sell'])->name('profile.sell');
-// 商品出品（保存）処理
-Route::post('/sell', [ProfileController::class, 'store'])->name('sell.store');
-
-// 商品詳細画面
 Route::get('/item/{item}', [ItemController::class, 'show'])->name('items.show');
-// 「商品に対するいいね/解除」をトグルで切り替える
-Route::post('/item/{item}/like', [ItemController::class, 'toggleLike'])->name('items.toggleLike');
-// コメント機能(ログインユーザーのみコメント機能使用可能)
-Route::post('/item/{item}/comments', [CommentController::class, 'store'])->middleware('auth')->name('comments.store');
 
-// 商品購入画面
-Route::get('/purchase/{item}', [PurchaseController::class, 'show'])->name('items.purchase');
-// 商品購入完了
-Route::post('/purchase/complete', [PurchaseController::class, 'complete'])->name('items.purchase.complete');
+// いいね機能（ログインのみ可）
+Route::post('/item/{item}/like', [ItemController::class, 'toggleLike'])->middleware('auth')->name('items.toggleLike');
 
-// 住所変更画面表示
-Route::get('/purchase/address/{item}', [AddressController::class, 'edit'])->name('items.address');
-// 住所変更の送信・更新処理
-Route::post('/items/address/{item}', [AddressController::class, 'update'])->name('items.address.update');
+// 商品購入画面（ログインしていれば閲覧可）
+Route::get('/purchase/{item}', [PurchaseController::class, 'show'])->middleware('auth')->name('items.purchase');
+
+// ================================
+// 認証ユーザー専用ルート（auth）
+// ================================
+Route::middleware(['auth'])->group(function () {
+
+    // マイページ・プロフィール
+    Route::get('/mypage', [ProfileController::class, 'show'])->name('profile.mypage');
+    Route::put('/mypage/profile', [ProfileController::class, 'update'])->name('edit.update');
+    Route::get('/mypage/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+
+    // 商品出品
+    Route::get('/sell', [ProfileController::class, 'sell'])->name('profile.sell');
+    Route::post('/sell', [ProfileController::class, 'store'])->name('sell.store');
+
+    // コメント投稿
+    Route::post('/item/{item}/comments', [CommentController::class, 'store'])->name('comments.store');
+
+    // 商品購入完了
+    Route::post('/purchase/complete', [PurchaseController::class, 'complete'])->name('items.purchase.complete');
+
+    // 住所変更
+    Route::get('/purchase/address/{item}', [AddressController::class, 'edit'])->name('items.address');
+    Route::post('/items/address/{item}', [AddressController::class, 'update'])->name('items.address.update');
+});

@@ -37,6 +37,8 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+
+            // 追加
         ],
 
         'api' => [
@@ -63,5 +65,11 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        // 🔵 追加する（キー名は自由だが、覚えやすい名前に）
+        'ensure.profile' => \App\Http\Middleware\EnsureProfileIsComplete::class,
+
+        // ミドルウェアの登録
+        'profile.complete' => \App\Http\Middleware\EnsureProfileIsComplete::class,
     ];
 }
