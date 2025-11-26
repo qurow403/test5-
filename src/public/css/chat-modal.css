@@ -1,0 +1,44 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    width: 420px;
+    padding: 24px;
+    background: #fffbe8;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #e0d8b0;
+}
+
+.stars {
+    font-size: 40px;
+    margin: 20px 0;
+}
+
+.star {
+    cursor: pointer;
+    color: #ccc;
+}
+
+.star.selected {
+    color: #ffd700;
+}
+
+.submit-btn {
+    padding: 8px 16px;
+    background: #ff8f8f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
