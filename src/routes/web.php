@@ -79,7 +79,5 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/chat/{transaction}', [ChatController::class, 'show'])
         ->name('chat.show');
-    Route::get('/chat/{transaction}', [ChatController::class, 'show'])
-        ->name('chat.show');
         Route::post('/rating/submit', [RatingController::class, 'submit'])->name('rating.submit');
 });
