@@ -79,5 +79,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/chat/{transaction}', [ChatController::class, 'show'])
         ->name('chat.show');
-        Route::post('/rating/submit', [RatingController::class, 'submit'])->name('rating.submit');
+    Route::post('/chat/{transaction}', [ChatController::class, 'store'])->name('chat.store');
+    Route::post('/chat/draft/{transaction}', [ChatController::class, 'draft'])->name('chat.draft');
+    Route::post('/rating/submit', [RatingController::class, 'submit'])->name('rating.submit');
 });

@@ -3,15 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB; // 追加
-
-// Itemモデル追加
+use Illuminate\Support\Facades\DB;
 use App\Models\Item;
-
-// Userモデル追加
 use App\Models\User;
-
-// Conditionモデル追加
 use App\Models\Condition;
 
 
@@ -28,7 +22,6 @@ class ItemsTableSeeder extends Seeder
 
         $userIds = User::pluck('id')->toArray();
 
-        // 条件名からIDを取得するマッピング
         $conditionMap = Condition::pluck('id', 'name')->toArray();
 
 

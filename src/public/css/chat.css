@@ -1,10 +1,8 @@
-/* 全体 */
 .chat-page {
     display: flex;
     background: #f7f7f7;
 }
 
-/* 左サイドバー */
 .sidebar {
     width: 220px;
     background: #717171;
@@ -33,7 +31,6 @@
     padding: 20px;
 }
 
-/* 上部の取引相手 */
 .chat-header {
     display: flex;
     align-items: center;
@@ -84,7 +81,6 @@
     font-size: 18px;
 }
 
-/* チャットメッセージ */
 .messages {
     margin-top: 30px;
 }
@@ -142,7 +138,6 @@
     color: #666;
 }
 
-/* 入力エリア */
 .chat-input-area {
     display: flex;
     align-items: center;
@@ -166,4 +161,23 @@
     margin-left: 10px;
     padding: 8px 15px;
     font-size: 16px;
+}
+
+.error-messages {
+    background: #ffe5e5;
+    border: 1px solid #ff6b6b;
+    color: #b60000;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.error-messages ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.error-messages li {
+    font-size: 14px;
+    margin-bottom: 3px;
 }

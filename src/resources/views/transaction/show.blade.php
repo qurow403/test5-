@@ -23,13 +23,17 @@
 
     <main class="chat-main">
 
-        <!-- 上部：取引相手表示 -->
         <div class="chat-header">
             <img src="{{ asset('images/default-user.png') }}" class="user-icon">
             <span class="header-text">「{{ $transaction->partner_name }}」さんとの取引画面</span>
+
+            @if(!$isSeller)
+                <button type="button" class="complete-btn" id="open-rating-modal">
+                    取引を完了する
+                </button>
+            @endif
         </div>
 
-        <!-- 商品情報 -->
         <div class="item-info">
             <img src="{{ $transaction->item_image }}" class="item-image">
 
@@ -39,7 +43,6 @@
             </div>
         </div>
 
-        <!-- チャットメッセージ -->
         <div class="messages">
 
             {{-- 相手のメッセージ --}}
@@ -55,7 +58,7 @@
             <div class="message-row right">
                 <div class="message-box my-message">
                     <div class="message-user">あなた</div>
-                    <div class="message-content">自分が送ったメッセージ</div>
+                    <div class="message-content">{{ old('body', $draft) ?: '自分が送ったメッセージ' }}</div>
                     <div class="message-actions">
                         <span class="edit">編集</span>
                         <span class="delete">削除</span>
@@ -66,9 +69,21 @@
 
         </div>
 
-        <!-- 入力欄 -->
-        <form class="chat-input-area">
-            <input type="text" class="chat-input" placeholder="取引メッセージを記入してください">
+        @if($errors->any())
+            <div class="error-messages">
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('chat.store', $transaction->id) }}" method="POST" enctype="multipart/form-data" class="chat-input-area">
+            @csrf
+
+            <input type="text" name="body" class="chat-input" placeholder="取引メッセージを記入してください" value="{{ old('body', $draft) }}">
+            <input type="file" id="chat-image" name="image" style="display:none;">
             <button type="button" class="image-btn">画像を追加</button>
             <button type="submit" class="send-btn">&#9658;</button>
         </form>
@@ -80,4 +95,27 @@
 @if($isSeller && $needsRating)
     @include('layouts.rating-modal')
 @endif
+
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const imageBtn = document.querySelector('.image-btn');
+        const fileInput = document.getElementById('chat-image');
+
+        if (imageBtn && fileInput) {
+            imageBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+        }
+
+        const btn = document.getElementById('open-rating-modal');
+        const modal = document.getElementById('rating-modal');
+        if (btn && modal) {
+            btn.addEventListener('click', () => {
+                modal.classList.add('show');
+            });
+        }
+</script>
 @endsection

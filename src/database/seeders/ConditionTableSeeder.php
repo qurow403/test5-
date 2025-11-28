@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-// Conditionモデル追加
 use App\Models\Condition;
 
 class ConditionTableSeeder extends Seeder
