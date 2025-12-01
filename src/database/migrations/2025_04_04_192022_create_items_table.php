@@ -20,7 +20,6 @@ class CreateItemsTable extends Migration
             $table->text('description')->nullable();
             $table->boolean('is_sold')->default(false);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('condition_id')->constrained('conditions')->onDelete('cascade');
             $table->string('image')->nullable();
             $table->timestamps();
         });
@@ -35,7 +34,6 @@ class CreateItemsTable extends Migration
     {
         Schema::table('items', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->dropForeign(['condition_id']);
         });
 
         Schema::dropIfExists('items');

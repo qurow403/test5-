@@ -14,45 +14,27 @@ class ChatController extends Controller
 {
     public function show($transactionId)
     {
-        $loginUserId = Auth::id();
+        $userId = Auth::id();
 
-        $transaction = new stdClass();
-        $transaction->id = $transactionId;
-        $transaction->partner_name = 'サンプル太郎';
-        $transaction->partner_avatar = asset('images/default-user.png');
-        $transaction->item_name = 'サンプル商品A';
-        $transaction->item_image = asset('images/sample-item.png');
-        $transaction->item_price = 2500;
+        $transaction = Transaction::with(['item', 'buyer', 'seller', 'messages.user'])
+            ->findOrFail($transactionId);
+
+        $isSeller = $transaction->seller_id === $userId;
+        $partner = $isSeller ? $transaction->buyer : $transaction->seller;
 
         $draft = session()->get("chat_draft_$transactionId", '');
 
-        $isSeller = ($transactionId % 2 === 1);
-        $needsRating = true;
+        $needsRating = !$transaction->is_completed;
 
-        $items = [
-            (object)['id' => 1, 'name' => 'サンプル商品A', 'user_id' => 2],
-            (object)['id' => 2, 'name' => 'サンプル商品B', 'user_id' => 3],
-            (object)['id' => 3, 'name' => 'サンプル商品C', 'user_id' => 1],
-        ];
+        $items = $userId === $transaction->seller_id
+            ? $transaction->seller->items()->where('id', '!=', $transaction->item_id)->get()
+            : $transaction->buyer->purchasedItems()->where('id', '!=', $transaction->item_id)->get();
 
-        $messages = [
-            (object)[
-                'id' => 1,
-                'user_id' => $loginUserId,
-                'user_name' => Auth::user()->name,
-                'body' => '自分のメッセージ例',
-            ],
-            (object)[
-                'id' => 2,
-                'user_id' => 2,
-                'user_name' => $transaction->partner_name,
-                'body' => '相手のメッセージ例',
-            ],
-        ];
-
+        $messages = $transaction->messages->sortBy('created_at');
 
         return view('transaction.show', compact(
             'transaction',
+            'partner',
             'isSeller',
             'needsRating',
             'items',
@@ -63,11 +45,17 @@ class ChatController extends Controller
 
     public function store(ChatMessageRequest $request, $transactionId)
     {
-        $data = $request->validated();
+        $transaction = Transaction::findOrFail($transactionId);
 
-        if($request->hasFile('image')) {
+        $data = $request->validated();
+        $data['user_id'] = Auth::id();
+        $data['transaction_id'] = $transactionId;
+
+        if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('chat_images', 'public');
         }
+
+        ChatMessage::create($data);
 
         session()->forget("chat_draft_$transactionId");
 
@@ -104,9 +92,4 @@ class ChatController extends Controller
         return redirect()->back();
     }
 
-    public function saveDraft(Request $request, $transactionId)
-    {
-        session()->put("chat_draft_$transactionId", $request->body);
-        return response()->json(['status' => 'saved']);
-    }
 }

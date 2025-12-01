@@ -8,48 +8,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\Condition;
 use App\Models\Item;
+use App\Models\Transaction;
+
 
 use App\Http\Requests\ExhibitionRequest;
 
 class ProfileController extends Controller
 {
-    public function show()
-    {
-        $user = Auth::user();
-        $soldItems = $user->items;
-        $purchasedItems = $user->purchasedItems()->get();
-
-        $inProgressItems = collect([
-            (object)[
-                'transaction_id' => 101,
-                'name' => 'ダミー商品A',
-                'image' => '/images/dummy-a.jpg',
-                'unread_count' => 3,
-                'last_message_time' => now()->subMinutes(10),
-            ],
-            (object)[
-                'transaction_id' => 102,
-                'name' => 'ダミー商品B',
-                'image' => '/images/dummy-b.jpg',
-                'unread_count' => 0,
-                'last_message_time' => now()->subHours(1),
-            ],
-            (object)[
-                'transaction_id' => 103,
-                'name' => 'ダミー商品C',
-                'image' => '/images/dummy-c.jpg',
-                'unread_count' => 5,
-                'last_message_time' => now()->subMinutes(3),
-            ],
-        ])->sortByDesc('last_message_time')->values();
-
-        return view('profile.mypage', compact(
-            'soldItems',
-            'purchasedItems',
-            'inProgressItems'
-        ));
-    }
-
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -60,43 +25,48 @@ class ProfileController extends Controller
             'profile_completed' => true,
         ]);
 
+        $request->validate([
+            'name' => 'required|string|max:50',
+            'address' => 'nullable|string|max:255',
+        ]);
+
         return redirect()->route('profile.mypage')->with('success', 'プロフィールを更新しました');
     }
 
-    public function mypage()
+    // 元mypageメソッド
+    public function show()
     {
         $user = Auth::user();
 
         $soldItems = $user->items;
         $purchasedItems = $user->purchasedItems()->get();
 
-        $inProgressItems = collect([
-            (object)[
-                'transaction_id' => 101,
-                'name' => 'ダミー商品A',
-                'image' => '/images/dummy-a.jpg',
-                'unread_count' => 3,
-                'last_message_time' => now()->subMinutes(10),
-            ],
-            (object)[
-                'transaction_id' => 102,
-                'name' => 'ダミー商品B',
-                'image' => '/images/dummy-b.jpg',
-                'unread_count' => 0,
-                'last_message_time' => now()->subHours(1),
-            ],
-            (object)[
-                'transaction_id' => 103,
-                'name' => 'ダミー商品C',
-                'image' => '/images/dummy-c.jpg',
-                'unread_count' => 5,
-                'last_message_time' => now()->subMinutes(3),
-            ],
-        ]);
+        $transactions = Transaction::where(function ($q) use ($user) {
+            $q->where('buyer_id', $user->id)
+                ->orWhere('seller_id', $user->id);
+        })
+        ->with(['item', 'chatMessages'])
+        ->get();
 
-        $inProgressItems = $inProgressItems
-            ->sortByDesc('last_message_time')
-            ->values();
+        $inProgressItems = $transactions->map(function ($tx) use ($user) {
+
+            $messages = $tx->chatMessages ?? collect();
+            $lastMessage = $messages->sortByDesc('created_at')->first();
+
+            $unreadCount = $messages->where('user_id', '!=', $user->id)
+                                    ->where('is_read', false)
+                                    ->count();
+
+            return (object)[
+                'transaction_id' => $tx->id,
+                'name' => $tx->item->name,
+                'image' => $tx->item->image,
+                'last_message_time' => $lastMessage ? $lastMessage->created_at : $tx->created_at,
+                'unread_count' => $unreadCount,
+            ];
+        })
+        ->sortByDesc('last_message_time')
+        ->values();
 
             return view('profile.mypage', compact(
                 'soldItems',
@@ -147,7 +117,7 @@ class ProfileController extends Controller
 
     public function edit()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $isFirst = is_null($user->name);
 
         return view('profile.edit', compact('user', 'isFirst'));

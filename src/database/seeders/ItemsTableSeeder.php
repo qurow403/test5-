@@ -23,9 +23,9 @@ class ItemsTableSeeder extends Seeder
         // ユーザーを3人用意（A, B, C）
         $users = User::take(3)->pluck('id')->toArray();
 
-        $userA = $users[0];
-        $userB = $users[1];
-        $userC = $users[2]; // ←この人には商品を紐づけない
+        $userA = User::where('email', 'userA@example.com')->first();
+        $userB = User::where('email', 'userB@example.com')->first();
+        $userC = User::where('email', 'userC@example.com')->first();
 
         // Condition 名 → ID のマップ
         $conditionMap = Condition::pluck('id', 'name')->toArray();
@@ -95,8 +95,7 @@ class ItemsTableSeeder extends Seeder
                 'price' => $item['price'],
                 'description' => $item['description'],
                 'image' => $item['image'],
-                'condition_id' => $conditionMap[$item['condition']],
-                'user_id' => $userA,
+                'user_id' => $userA->id,
                 'is_sold' => false,
             ]);
         }
@@ -108,8 +107,7 @@ class ItemsTableSeeder extends Seeder
                 'price' => $item['price'],
                 'description' => $item['description'],
                 'image' => $item['image'],
-                'condition_id' => $conditionMap[$item['condition']],
-                'user_id' => $userB,
+                'user_id' => $userB->id,
                 'is_sold' => false,
             ]);
         }

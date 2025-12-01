@@ -5,19 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-// Userモデル
 use App\Models\User;
-
-// Likeモデル
 use App\Models\Like;
-
-// Commentモデル
 use App\Models\Comment;
-
-// Categoryモデル
 use App\Models\Category;
-
-// Conditionモデル
 use App\Models\Condition;
 
 class Item extends Model
@@ -28,8 +19,6 @@ class Item extends Model
         'name',
         'price',
         'description',
-        'condition_id',
-        'category_id',
         'is_sold',
         'user_id',
         'image'
@@ -48,20 +37,11 @@ class Item extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function categories(){
-        return $this->belongsToMany(Category::class);
-    }
-
     public function isLikedBy($user)
     {
         if (!$user) return false;
 
         return $this->likes()->where('user_id', $user->id)->exists();
-    }
-
-    public function condition()
-    {
-        return $this->belongsTo(Condition::class);
     }
 
     public function transaction()

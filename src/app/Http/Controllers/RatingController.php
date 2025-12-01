@@ -3,25 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Mail\TransactionCompletedMail;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 
 class RatingController extends Controller
 {
-    public function store(Request $request)
-    {
-        return back();
-    }
-
     public function submit(Request $request)
     {
         $request->validate([
             'transaction_id' => 'required|exists:transactions,id',
             'rating' => 'required|integer|min:1|max:5',
+            'role' => 'required|in:buyer,seller',
         ]);
 
-        $transaction = Transaction::find($request->transaction_id);
+        $transaction = Transaction::findOrFail($request->transaction_id);
 
         if ($request->role === 'buyer') {
             $transaction->buyer_rating = $request->rating;
@@ -33,11 +29,9 @@ class RatingController extends Controller
 
         $transaction->save();
 
-        $sellerEmail = $transaction->item->user->email;
-        Mail::to($sellerEmail)->send(new TransactionCompletedMail($transaction));
+        $recipientEmail = $transaction->item->user->email;
+        Mail::to($recipientEmail)->send(new TransactionCompletedMail($transaction));
 
-        return redirect()
-            ->route('items.index')
-            ->with('success', '評価を送信しました');
+        return redirect()->route('items.index')->with('success', '評価を送信しました');
     }
 }

@@ -13,14 +13,9 @@
             @csrf
             <input type="hidden" name="transaction_id" value="{{ $transaction->id ?? ''  }}">
             <input type="hidden" name="rating" id="rating_value">
+            <input type="hidden" name="role" value="{{ $isSeller ? 'seller' : 'buyer' }}">
 
-            @if(!$isSeller)
-                <input type="hidden" name="role" value="buyer">
-            @else
-                <input type="hidden" name="role" value="seller">
-            @endif
-
-            <button class="submit-btn">送信する</button>
+            <button type="submit" class="submit-btn">送信する</button>
         </form>
     </div>
 </div>
@@ -50,11 +45,22 @@
     });
 
     const form = document.getElementById('rating-form');
-    if(form){
+
+    if (form) {
         form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert("評価送信: " + ratingInput.value);
-            window.location.href = "/";
+            if (!ratingInput.value) {
+                e.preventDefault();
+                alert("評価を選択してください");
+            }
         });
     }
+    // これは商品一覧に戻る本はコード
+    // const form = document.getElementById('rating-form');
+    // if(form){
+    //     form.addEventListener('submit', (e) => {
+    //         e.preventDefault();
+    //         alert("評価送信: " + ratingInput.value);
+    //         window.location.href = "/";
+    //     });
+    // }
 </script>

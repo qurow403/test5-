@@ -15,6 +15,16 @@ class Transaction extends Model
         'item_id',
         'buyer_id',
         'status',
+        'seller_id',
+        'status',
+        'buyer_rating',
+        'seller_rating',
+        'buyer_rated_at',
+        'seller_rated_at',
+        'shipping_name',
+        'shipping_postcode',
+        'shipping_address',
+        'shipping_tel',
     ];
 
     public function item()
@@ -22,8 +32,18 @@ class Transaction extends Model
         return $this->belongsTo(Item::class);
     }
 
-    public function user()
+    public function buyer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class);
     }
 }

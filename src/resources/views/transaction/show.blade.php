@@ -25,7 +25,7 @@
 
         <div class="chat-header">
             <img src="{{ asset('images/default-user.png') }}" class="user-icon">
-            <span class="header-text">「{{ $transaction->partner_name }}」さんとの取引画面</span>
+            <span class="header-text">「{{ $partner->name }}」さんとの取引画面</span>
 
             @if(!$isSeller)
                 <button type="button" class="complete-btn" id="open-rating-modal">
@@ -35,11 +35,11 @@
         </div>
 
         <div class="item-info">
-            <img src="{{ $transaction->item_image }}" class="item-image">
+            <img src="{{ $transaction->item->image ?? asset('images/default-item.png') }}" class="item-image">
 
             <div class="item-details">
-                <div class="item-name">{{ $transaction->item_name }}</div>
-                <div class="item-price">¥{{ number_format($transaction->item_price) }}</div>
+                <div class="item-name">{{ $transaction->item->name }}</div>
+                <div class="item-price">¥{{ number_format($transaction->item->price) }}</div>
             </div>
         </div>
 

@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{ asset('css/mypage.css') }}">
 @endsection
 
-@section('title', 'プロフィール画面')
+@section('title', 'マイページ')
 
 @section('content')
 <div class="mypage-container">
@@ -26,7 +26,7 @@
     <div class="item-list" id="sold-items">
         @foreach ($soldItems as $item)
         <div class="item-card">
-            <img src="{!! $item->image !!}" alt="商品画像">
+            <img src="{{ $item->image }}" alt="商品画像">
             <div class="item-name">{{ $item->name }}</div>
         </div>
         @endforeach
@@ -35,7 +35,7 @@
     <div class="item-list" id="purchased-items" style="display: none;">
         @foreach ($purchasedItems as $item)
         <div class="item-card">
-            <img src="{!! $item->image !!}" alt="商品画像">
+            <img src="{{ $item->image }}" alt="商品画像">
             <div class="item-name">{{ $item->name }}</div>
         </div>
         @endforeach
@@ -45,7 +45,7 @@
         @foreach ($inProgressItems as $item)
             <a href="{{ route('chat.show', ['transaction' => $item->transaction_id]) }}" class="item-card">
 
-                @if (!empty($item->unread_count) && $item->unread_count > 0)
+                @if ($item->unread_count > 0)
                     <span class="badge">{{ $item->unread_count }}</span>
                 @endif
 

@@ -72,7 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function purchasedItems()
     {
-        return $this->belongsToMany(Item::class, 'purchases')->withTimestamps();
+        return $this->belongsToMany(Item::class, 'transactions', 'buyer_id', 'item_id');
     }
 
 
@@ -84,5 +84,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function transactionsAsBuyer()
+    {
+        return $this->hasMany(Transaction::class, 'buyer_id');
+    }
+
+    public function transactionsAsSeller()
+    {
+        return $this->hasMany(Transaction::class, 'seller_id');
     }
 }

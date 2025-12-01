@@ -4,10 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-// Itemモデル追加
 use App\Models\Item;
-
-// ログアウト機能追加
 use Illuminate\Support\Facades\Auth;
 
 class ItemController extends Controller

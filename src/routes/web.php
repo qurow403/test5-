@@ -81,8 +81,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat/{transaction}', [ChatController::class, 'show'])
         ->name('chat.show');
     Route::post('/chat/{transaction}', [ChatController::class, 'store'])->name('chat.store');
-    Route::post('/chat/draft/{transaction}', [ChatController::class, 'saveDraft'])->name('chat.draft');
-    Route::post('/chat/{message}/update', [ChatController::class, 'update'])->name('chat.update');
-    Route::delete('/chat/{message}', [ChatController::class, 'destroy'])->name('chat.destroy');
+    Route::post('/chat/{transaction}/draft', [ChatController::class, 'draft'])->name('chat.draft');
+    Route::patch('/chat/message/{message}', [ChatController::class, 'update'])->name('chat.update');
+    Route::delete('/chat/message/{message}', [ChatController::class, 'destroy'])->name('chat.destroy');
     Route::post('/rating/submit', [RatingController::class, 'submit'])->name('rating.submit');
 });
