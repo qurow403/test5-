@@ -45,7 +45,7 @@
 
         <div class="messages">
 
-            @foreach(array_reverse($messages) as $message)
+            @foreach($messages as $message)
                 <div class="message-row {{ $message->user_id === Auth::id() ? 'right' : 'left' }}">
                     @if($message->user_id !== Auth::id())
                         <img src="{{ asset('images/default-user.png') }}" class="message-icon">
@@ -140,6 +140,12 @@
                 },
                 body: JSON.stringify({ body: body })
             });
+        }
+
+        const messagesContainer = document.querySelector('.messages');
+
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     });
 </script>

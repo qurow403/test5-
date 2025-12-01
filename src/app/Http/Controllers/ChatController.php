@@ -16,7 +16,7 @@ class ChatController extends Controller
     {
         $userId = Auth::id();
 
-        $transaction = Transaction::with(['item', 'buyer', 'seller', 'messages.user'])
+        $transaction = Transaction::with(['item', 'buyer', 'seller', 'chatMessages.user'])
             ->findOrFail($transactionId);
 
         $isSeller = $transaction->seller_id === $userId;
@@ -27,10 +27,10 @@ class ChatController extends Controller
         $needsRating = !$transaction->is_completed;
 
         $items = $userId === $transaction->seller_id
-            ? $transaction->seller->items()->where('id', '!=', $transaction->item_id)->get()
-            : $transaction->buyer->purchasedItems()->where('id', '!=', $transaction->item_id)->get();
+            ? $transaction->seller->items()->where('items.id', '!=', $transaction->item_id)->get()
+            : $transaction->buyer->purchasedItems()->where('items.id', '!=', $transaction->item_id)->get();
 
-        $messages = $transaction->messages->sortBy('created_at');
+        $messages = $transaction->chatMessages->sortBy('created_at')->values();
 
         return view('transaction.show', compact(
             'transaction',
