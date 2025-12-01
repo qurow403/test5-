@@ -20,106 +20,98 @@ class ItemsTableSeeder extends Seeder
     {
         $baseUrl = 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/';
 
-        $userIds = User::pluck('id')->toArray();
+        // ユーザーを3人用意（A, B, C）
+        $users = User::take(3)->pluck('id')->toArray();
 
+        $userA = $users[0];
+        $userB = $users[1];
+        $userC = $users[2]; // ←この人には商品を紐づけない
+
+        // Condition 名 → ID のマップ
         $conditionMap = Condition::pluck('id', 'name')->toArray();
 
-
-        $items = [
-            [
-                'name' => '腕時計',
-                'price' => 15000,
+        // CO01〜CO05（ユーザーA）
+        $itemsA = [
+            ['name' => '腕時計', 'price' => 15000,
                 'description' => 'スタイリッシュなデザインのメンズ腕時計',
-                'condition_id' => $conditionMap['良好'],
-                'image' => $baseUrl . 'Armani+Mens+Clock.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
+                'image' => $baseUrl.'Armani+Mens+Clock.jpg',
+                'condition' => '良好'
             ],
-            [
-                'name' => 'HDD',
-                'price' => 5000,
+            ['name' => 'HDD', 'price' => 5000,
                 'description' => '高速で信頼性の高いハードディスク',
-                'condition_id' => $conditionMap['目立った傷や汚れなし'],
-                'image' => $baseUrl . 'HDD+Hard+Disk.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
+                'image' => $baseUrl.'HDD+Hard+Disk.jpg',
+                'condition' => '目立った傷や汚れなし'
             ],
-            [
-                'name' => '玉ねぎ3束',
-                'price' => 300,
+            ['name' => '玉ねぎ3束', 'price' => 300,
                 'description' => '新鮮な玉ねぎ3束のセット',
-                'condition_id' => $conditionMap['やや傷や汚れあり'],
-                'image' => $baseUrl . 'iLoveIMG+d.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
+                'image' => $baseUrl.'iLoveIMG+d.jpg',
+                'condition' => 'やや傷や汚れあり'
             ],
-            [
-                'name' => '革靴',
-                'price' => 4000,
+            ['name' => '革靴', 'price' => 4000,
                 'description' => 'クラシックなデザインの革靴',
-                'condition_id' => $conditionMap['状態が悪い'],
-                'image' => $baseUrl . 'Leather+Shoes+Product+Photo.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
+                'image' => $baseUrl.'Leather+Shoes+Product+Photo.jpg',
+                'condition' => '状態が悪い'
             ],
-            [
-                'name' => 'ノートPC',
-                'price' => 45000,
+            ['name' => 'ノートPC', 'price' => 45000,
                 'description' => '高性能なノートパソコン',
-                'condition_id' => $conditionMap['良好'],
-                'image' => $baseUrl . 'Living+Room+Laptop.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
-            ],
-            [
-                'name' => 'マイク',
-                'price' => 8000,
-                'description' => '高音質のレコーディング用マイク',
-                'condition_id' => $conditionMap['目立った傷や汚れなし'],
-                'image' => $baseUrl . 'Music+Mic+4632231.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
-            ],
-            [
-                'name' => 'ショルダーバッグ',
-                'price' => 3500,
-                'description' => 'おしゃれなショルダーバッグ',
-                'condition_id' => $conditionMap['やや傷や汚れあり'],
-                'image' => $baseUrl . 'Purse+fashion+pocket.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
-            ],
-            [
-                'name' => 'タンブラー',
-                'price' => 500,
-                'description' => '使いやすいタンブラー',
-                'condition_id' => $conditionMap['状態が悪い'],
-                'image' => $baseUrl . 'Tumbler+souvenir.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
-            ],
-            [
-                'name' => 'コーヒーミル',
-                'price' => 4000,
-                'description' => '手動のコーヒーミル',
-                'condition_id' => $conditionMap['良好'],
-                'image' => $baseUrl . 'Waitress+with+Coffee+Grinder.jpg',
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
-            ],
-            [
-                'name' => 'メイクセット',
-                'price' => 2500,
-                'description' => '便利なメイクアップセット',
-                'condition_id' => $conditionMap['目立った傷や汚れなし'],
-                'image' => $baseUrl . urlencode('外出メイクアップセット.jpg'),
-                'is_sold' => false,
-                'user_id' => $userIds[array_rand($userIds)],
+                'image' => $baseUrl.'Living+Room+Laptop.jpg',
+                'condition' => '良好'
             ],
         ];
 
-        foreach ($items as $item) {
-            Item::create($item);
+        // CO06〜CO10（ユーザーB）
+        $itemsB = [
+            ['name' => 'マイク', 'price' => 8000,
+                'description' => '高音質のレコーディング用マイク',
+                'image' => $baseUrl.'Music+Mic+4632231.jpg',
+                'condition' => '目立った傷や汚れなし'
+            ],
+            ['name' => 'ショルダーバッグ', 'price' => 3500,
+                'description' => 'おしゃれなショルダーバッグ',
+                'image' => $baseUrl.'Purse+fashion+pocket.jpg',
+                'condition' => 'やや傷や汚れあり'
+            ],
+            ['name' => 'タンブラー', 'price' => 500,
+                'description' => '使いやすいタンブラー',
+                'image' => $baseUrl.'Tumbler+souvenir.jpg',
+                'condition' => '状態が悪い'
+            ],
+            ['name' => 'コーヒーミル', 'price' => 4000,
+                'description' => '手動のコーヒーミル',
+                'image' => $baseUrl.'Waitress+with+Coffee+Grinder.jpg',
+                'condition' => '良好'
+            ],
+            ['name' => 'メイクセット', 'price' => 2500,
+                'description' => '便利なメイクアップセット',
+                'image' => $baseUrl.urlencode('外出メイクアップセット.jpg'),
+                'condition' => '目立った傷や汚れなし'
+            ],
+        ];
+
+        // 商品生成（ユーザーA）
+        foreach ($itemsA as $item) {
+            Item::create([
+                'name' => $item['name'],
+                'price' => $item['price'],
+                'description' => $item['description'],
+                'image' => $item['image'],
+                'condition_id' => $conditionMap[$item['condition']],
+                'user_id' => $userA,
+                'is_sold' => false,
+            ]);
+        }
+
+        // 商品生成（ユーザーB）
+        foreach ($itemsB as $item) {
+            Item::create([
+                'name' => $item['name'],
+                'price' => $item['price'],
+                'description' => $item['description'],
+                'image' => $item['image'],
+                'condition_id' => $conditionMap[$item['condition']],
+                'user_id' => $userB,
+                'is_sold' => false,
+            ]);
         }
     }
 }

@@ -13,12 +13,27 @@
             @csrf
             <input type="hidden" name="transaction_id" value="{{ $transaction->id ?? ''  }}">
             <input type="hidden" name="rating" id="rating_value">
+
+            @if(!$isSeller)
+                <input type="hidden" name="role" value="buyer">
+            @else
+                <input type="hidden" name="role" value="seller">
+            @endif
+
             <button class="submit-btn">送信する</button>
         </form>
     </div>
 </div>
 
 <script>
+    const modalBtn = document.getElementById('open-rating-modal');
+    const modal = document.getElementById('rating-modal');
+    if (modalBtn && modal) {
+        modalBtn.addEventListener('click', () => {
+            modal.classList.add('show');
+        });
+    }
+
     const stars = document.querySelectorAll('.star');
     const ratingInput = document.getElementById('rating_value');
 
@@ -33,4 +48,13 @@
             }
         });
     });
+
+    const form = document.getElementById('rating-form');
+    if(form){
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert("評価送信: " + ratingInput.value);
+            window.location.href = "/";
+        });
+    }
 </script>

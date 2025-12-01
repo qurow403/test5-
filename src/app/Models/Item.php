@@ -35,29 +35,23 @@ class Item extends Model
         'image'
     ];
 
-    // 出品者（1対多） belongsTo
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // いいね（1対多） hasMany
     public function likes(){
         return $this->hasMany(Like::class);
     }
 
-    // コメント（1対多） hasMany
     public function comments(){
         return $this->hasMany(Comment::class);
     }
 
-    // カテゴリ（多対多） belongsToMany
-    // 中間テーブル：category_item
     public function categories(){
         return $this->belongsToMany(Category::class);
     }
 
-    // ログイン中のユーザーがこの商品をいいね済みか
     public function isLikedBy($user)
     {
         if (!$user) return false;
@@ -68,5 +62,10 @@ class Item extends Model
     public function condition()
     {
         return $this->belongsTo(Condition::class);
+    }
+
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class);
     }
 }

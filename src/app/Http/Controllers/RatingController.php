@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TransactionCompletedMail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 
@@ -21,10 +23,21 @@ class RatingController extends Controller
 
         $transaction = Transaction::find($request->transaction_id);
 
-        $transaction->rating = $request->rating;
+        if ($request->role === 'buyer') {
+            $transaction->buyer_rating = $request->rating;
+            $transaction->buyer_rated_at = now();
+        } else {
+            $transaction->seller_rating = $request->rating;
+            $transaction->seller_rated_at = now();
+        }
+
         $transaction->save();
 
-        return redirect()->route('chat.show', $transaction->id)
-                        ->with('success', '評価を送信しました');
+        $sellerEmail = $transaction->item->user->email;
+        Mail::to($sellerEmail)->send(new TransactionCompletedMail($transaction));
+
+        return redirect()
+            ->route('items.index')
+            ->with('success', '評価を送信しました');
     }
 }

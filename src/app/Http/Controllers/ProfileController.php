@@ -19,7 +19,35 @@ class ProfileController extends Controller
         $soldItems = $user->items;
         $purchasedItems = $user->purchasedItems()->get();
 
-        return view('profile.mypage', compact('soldItems', 'purchasedItems'));
+        $inProgressItems = collect([
+            (object)[
+                'transaction_id' => 101,
+                'name' => 'ダミー商品A',
+                'image' => '/images/dummy-a.jpg',
+                'unread_count' => 3,
+                'last_message_time' => now()->subMinutes(10),
+            ],
+            (object)[
+                'transaction_id' => 102,
+                'name' => 'ダミー商品B',
+                'image' => '/images/dummy-b.jpg',
+                'unread_count' => 0,
+                'last_message_time' => now()->subHours(1),
+            ],
+            (object)[
+                'transaction_id' => 103,
+                'name' => 'ダミー商品C',
+                'image' => '/images/dummy-c.jpg',
+                'unread_count' => 5,
+                'last_message_time' => now()->subMinutes(3),
+            ],
+        ])->sortByDesc('last_message_time')->values();
+
+        return view('profile.mypage', compact(
+            'soldItems',
+            'purchasedItems',
+            'inProgressItems'
+        ));
     }
 
     public function update(Request $request)
@@ -40,11 +68,41 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $soldItems = $user->items;
-        $purchasedItems = $user->purchasedItems;
+        $purchasedItems = $user->purchasedItems()->get();
 
-        $inProgressItems = $user->transactions()->where('status', 'pending')->get();
+        $inProgressItems = collect([
+            (object)[
+                'transaction_id' => 101,
+                'name' => 'ダミー商品A',
+                'image' => '/images/dummy-a.jpg',
+                'unread_count' => 3,
+                'last_message_time' => now()->subMinutes(10),
+            ],
+            (object)[
+                'transaction_id' => 102,
+                'name' => 'ダミー商品B',
+                'image' => '/images/dummy-b.jpg',
+                'unread_count' => 0,
+                'last_message_time' => now()->subHours(1),
+            ],
+            (object)[
+                'transaction_id' => 103,
+                'name' => 'ダミー商品C',
+                'image' => '/images/dummy-c.jpg',
+                'unread_count' => 5,
+                'last_message_time' => now()->subMinutes(3),
+            ],
+        ]);
 
-        return view('profile.mypage', compact('soldItems', 'purchasedItems'));
+        $inProgressItems = $inProgressItems
+            ->sortByDesc('last_message_time')
+            ->values();
+
+            return view('profile.mypage', compact(
+                'soldItems',
+                'purchasedItems',
+                'inProgressItems'
+            ));
     }
 
     public function sell()

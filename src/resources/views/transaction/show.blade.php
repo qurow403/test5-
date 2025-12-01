@@ -45,27 +45,28 @@
 
         <div class="messages">
 
-            {{-- 相手のメッセージ --}}
-            <div class="message-row left">
-                <img src="{{ asset('images/default-user.png') }}" class="message-icon">
-                <div class="message-box">
-                    <div class="message-user">{{ $transaction->partner_name }}</div>
-                    <div class="message-content">相手のメッセージ例です。</div>
-                </div>
-            </div>
+            @foreach(array_reverse($messages) as $message)
+                <div class="message-row {{ $message->user_id === Auth::id() ? 'right' : 'left' }}">
+                    @if($message->user_id !== Auth::id())
+                        <img src="{{ asset('images/default-user.png') }}" class="message-icon">
+                    @endif
 
-            {{-- 自分のメッセージ --}}
-            <div class="message-row right">
-                <div class="message-box my-message">
-                    <div class="message-user">あなた</div>
-                    <div class="message-content">{{ old('body', $draft) ?: '自分が送ったメッセージ' }}</div>
-                    <div class="message-actions">
-                        <span class="edit">編集</span>
-                        <span class="delete">削除</span>
+                    <div class="message-box {{ $message->user_id === Auth::id() ? 'my-message' : '' }}">
+                        <div class="message-user">{{ $message->user_name }}</div>
+                        <div class="message-content">{{ $message->body }}</div>
+                        @if($message->user_id === Auth::id())
+                            <div class="message-actions">
+                                <span class="edit-btn" onclick="editMessage({{ $message->id }})">編集</span>
+                                <span class="delete-btn" onclick="deleteMessage({{ $message->id }})">削除</span>
+                            </div>
+                        @endif
                     </div>
+
+                    @if($message->user_id === Auth::id())
+                        <img src="{{ asset('images/default-user.png') }}" class="message-icon">
+                    @endif
                 </div>
-                <img src="{{ asset('images/default-user.png') }}" class="message-icon">
-            </div>
+            @endforeach
 
         </div>
 
@@ -117,5 +118,29 @@
                 modal.classList.add('show');
             });
         }
+
+        const chatInput = document.querySelector('.chat-input');
+        if (!chatInput) return;
+
+        let timer = null;
+
+        chatInput.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                saveDraft(chatInput.value);
+            }, 500);
+        });
+
+        function saveDraft(body) {
+            fetch("{{ route('chat.draft', $transaction->id) }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ body: body })
+            });
+        }
+    });
 </script>
 @endsection

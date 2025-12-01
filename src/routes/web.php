@@ -77,9 +77,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase/address/{item}', [AddressController::class, 'edit'])->name('items.address');
     Route::post('/items/address/{item}', [AddressController::class, 'update'])->name('items.address.update');
 
+
     Route::get('/chat/{transaction}', [ChatController::class, 'show'])
         ->name('chat.show');
     Route::post('/chat/{transaction}', [ChatController::class, 'store'])->name('chat.store');
-    Route::post('/chat/draft/{transaction}', [ChatController::class, 'draft'])->name('chat.draft');
+    Route::post('/chat/draft/{transaction}', [ChatController::class, 'saveDraft'])->name('chat.draft');
+    Route::post('/chat/{message}/update', [ChatController::class, 'update'])->name('chat.update');
+    Route::delete('/chat/{message}', [ChatController::class, 'destroy'])->name('chat.destroy');
     Route::post('/rating/submit', [RatingController::class, 'submit'])->name('rating.submit');
 });
