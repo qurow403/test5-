@@ -36,7 +36,6 @@
 
         <div class="item-info">
             <img src="{{ $transaction->item->image ?? asset('images/default-item.png') }}" class="item-image">
-
             <div class="item-details">
                 <div class="item-name">{{ $transaction->item->name }}</div>
                 <div class="item-price">¥{{ number_format($transaction->item->price) }}</div>
@@ -44,7 +43,6 @@
         </div>
 
         <div class="messages">
-
             @foreach($messages as $message)
                 <div class="message-row {{ $message->user_id === Auth::id() ? 'right' : 'left' }}">
                     @if($message->user_id !== Auth::id())
@@ -58,48 +56,36 @@
                             {{ $message->body }}
                         </div>
 
-                            <form action="{{ route('chat.update', $message->id) }}" method="POST" style="display:none;" id="edit-form-{{ $message->id }}">
-                                @csrf
-                                @method('PATCH')
-                                <input type="text" name="body" value="{{ $message->body }}" class="edit-input">
-                                <button type="submit">保存</button>
-                                <button type="button" onclick="cancelEdit({{ $message->id }})">キャンセル</button>
-                            </form>
+                        <form action="{{ route('chat.update', $message->id) }}" method="POST" style="display:none;" id="edit-form-{{ $message->id }}">
+                            @csrf
+                            @method('PATCH')
+                            <input type="text" name="body" value="{{ $message->body }}" class="edit-input">
+                            <button type="submit">保存</button>
+                            <button type="button" onclick="cancelEdit({{ $message->id }})">キャンセル</button>
+                        </form>
 
-                            @if($message->user_id === Auth::id())
-                                <div class="message-actions">
-                                    <span class="edit-btn" onclick="editMessage({{ $message->id }})">編集</span>
+                        @if($message->user_id === Auth::id())
+                            <div class="message-actions">
+                                <span class="edit-btn" onclick="editMessage({{ $message->id }})">編集</span>
 
-                                    <form id="delete-form-{{ $message->id }}" action="{{ route('chat.destroy', $message->id) }}" method="POST" style="display:none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                    <span class="delete-btn" onclick="deleteMessage({{ $message->id }})">削除</span>
-                                </div>
-                            @endif
-                        </div>
+                                <form id="delete-form-{{ $message->id }}" action="{{ route('chat.destroy', $message->id) }}" method="POST" style="display:none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                                <span class="delete-btn" onclick="deleteMessage({{ $message->id }})">削除</span>
+                            </div>
+                        @endif
+                    </div>
 
                     @if($message->user_id === Auth::id())
                         <img src="{{ asset('images/default-user.png') }}" class="message-icon">
                     @endif
                 </div>
             @endforeach
-
         </div>
-
-        @if($errors->any())
-            <div class="error-messages">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         <form action="{{ route('chat.store', $transaction->id) }}" method="POST" enctype="multipart/form-data" class="chat-input-area">
             @csrf
-
             <input type="text" name="body" class="chat-input" placeholder="取引メッセージを記入してください" value="{{ old('body', $draft) }}">
             <input type="file" id="chat-image" name="image" style="display:none;">
             <button type="button" class="image-btn">画像を追加</button>
@@ -110,76 +96,69 @@
 
 </div>
 
-@if($isSeller && $needsRating)
-    @include('layouts.rating-modal')
+@if(!$isSeller)
+    @include('layouts.rating-modal', ['transaction' => $transaction, 'isSeller' => $isSeller])
+@endif
+
+@if($isSeller && $transaction->buyer_rated_at)
+    @include('layouts.rating-modal', ['transaction' => $transaction, 'isSeller' => $isSeller])
 @endif
 
 @endsection
 
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const imageBtn = document.querySelector('.image-btn');
-        const fileInput = document.getElementById('chat-image');
+document.addEventListener('DOMContentLoaded', () => {
+    const imageBtn = document.querySelector('.image-btn');
+    const fileInput = document.getElementById('chat-image');
+    if (imageBtn && fileInput) {
+        imageBtn.addEventListener('click', () => fileInput.click());
+    }
 
-        if (imageBtn && fileInput) {
-            imageBtn.addEventListener('click', () => {
-                fileInput.click();
-            });
-        }
+    const btn = document.getElementById('open-rating-modal');
+    const modal = document.getElementById('rating-modal');
 
-        const btn = document.getElementById('open-rating-modal');
-        const modal = document.getElementById('rating-modal');
-        if (btn && modal) {
-            btn.addEventListener('click', () => {
-                modal.classList.add('show');
-            });
-        }
+    if (btn && modal) {
+        btn.addEventListener('click', () => modal.classList.add('show'));
+    }
 
-        const chatInput = document.querySelector('.chat-input');
-        if (!chatInput) return;
-
+    const chatInput = document.querySelector('.chat-input');
+    if (chatInput) {
         let timer = null;
-
         chatInput.addEventListener('input', () => {
             clearTimeout(timer);
-            timer = setTimeout(() => {
-                saveDraft(chatInput.value);
-            }, 500);
+            timer = setTimeout(() => saveDraft(chatInput.value), 500);
         });
-
-        function saveDraft(body) {
-            fetch("{{ route('chat.draft', $transaction->id) }}", {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ body: body })
-            });
-        }
-
-        const messagesContainer = document.querySelector('.messages');
-
-        if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-    });
-
-    window.editMessage = function(id) {
-        document.getElementById(`message-content-${id}`).style.display = 'none';
-        document.getElementById(`edit-form-${id}`).style.display = 'block';
+    }
+    function saveDraft(body) {
+        fetch("{{ route('chat.draft', $transaction->id) }}", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ body })
+        });
     }
 
-    window.cancelEdit = function(id) {
-        document.getElementById(`edit-form-${id}`).style.display = 'none';
-        document.getElementById(`message-content-${id}`).style.display = 'block';
+    const messagesContainer = document.querySelector('.messages');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+});
 
-    window.deleteMessage = function(id) {
-        if (confirm("このメッセージを削除しますか？")) {
-            document.getElementById(`delete-form-${id}`).submit();
-        }
+function editMessage(id) {
+    document.getElementById(`message-content-${id}`).style.display = 'none';
+    document.getElementById(`edit-form-${id}`).style.display = 'block';
+}
+function cancelEdit(id) {
+    document.getElementById(`edit-form-${id}`).style.display = 'none';
+    document.getElementById(`message-content-${id}`).style.display = 'block';
+}
+function deleteMessage(id) {
+    if (confirm("このメッセージを削除しますか？")) {
+        document.getElementById(`delete-form-${id}`).submit();
     }
+}
 </script>
 @endsection

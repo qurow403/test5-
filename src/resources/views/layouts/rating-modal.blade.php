@@ -1,4 +1,4 @@
-<div class="modal-overlay">
+<div id="rating-modal" class="modal-overlay">
     <div class="modal-content">
         <h2>取引が完了しました。</h2>
         <p>今回の取引相手はどうでしたか？</p>
@@ -9,7 +9,7 @@
             @endfor
         </div>
 
-        <form action="{{ route('rating.submit') }}" method="POST">
+        <form action="{{ route('rating.submit') }}" method="POST" id="rating-form">
             @csrf
             <input type="hidden" name="transaction_id" value="{{ $transaction->id ?? ''  }}">
             <input type="hidden" name="rating" id="rating_value">
@@ -54,13 +54,4 @@
             }
         });
     }
-    // これは商品一覧に戻る本はコード
-    // const form = document.getElementById('rating-form');
-    // if(form){
-    //     form.addEventListener('submit', (e) => {
-    //         e.preventDefault();
-    //         alert("評価送信: " + ratingInput.value);
-    //         window.location.href = "/";
-    //     });
-    // }
 </script>
