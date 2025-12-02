@@ -89,7 +89,7 @@ class ChatController extends Controller
 
         $message->delete();
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'メッセージを削除しました');
     }
 
 }

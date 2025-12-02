@@ -51,16 +51,33 @@
                         <img src="{{ asset('images/default-user.png') }}" class="message-icon">
                     @endif
 
-                    <div class="message-box {{ $message->user_id === Auth::id() ? 'my-message' : '' }}">
-                        <div class="message-user">{{ $message->user_name }}</div>
-                        <div class="message-content">{{ $message->body }}</div>
-                        @if($message->user_id === Auth::id())
-                            <div class="message-actions">
-                                <span class="edit-btn" onclick="editMessage({{ $message->id }})">編集</span>
-                                <span class="delete-btn" onclick="deleteMessage({{ $message->id }})">削除</span>
-                            </div>
-                        @endif
-                    </div>
+                    <div class="message-box {{ $message->user_id === Auth::id() ? 'my-message' : '' }}" id="message-box-{{ $message->id }}">
+                        <div class="message-user">{{ $message->user->name }}</div>
+
+                        <div class="message-content" id="message-content-{{ $message->id }}">
+                            {{ $message->body }}
+                        </div>
+
+                            <form action="{{ route('chat.update', $message->id) }}" method="POST" style="display:none;" id="edit-form-{{ $message->id }}">
+                                @csrf
+                                @method('PATCH')
+                                <input type="text" name="body" value="{{ $message->body }}" class="edit-input">
+                                <button type="submit">保存</button>
+                                <button type="button" onclick="cancelEdit({{ $message->id }})">キャンセル</button>
+                            </form>
+
+                            @if($message->user_id === Auth::id())
+                                <div class="message-actions">
+                                    <span class="edit-btn" onclick="editMessage({{ $message->id }})">編集</span>
+
+                                    <form id="delete-form-{{ $message->id }}" action="{{ route('chat.destroy', $message->id) }}" method="POST" style="display:none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <span class="delete-btn" onclick="deleteMessage({{ $message->id }})">削除</span>
+                                </div>
+                            @endif
+                        </div>
 
                     @if($message->user_id === Auth::id())
                         <img src="{{ asset('images/default-user.png') }}" class="message-icon">
@@ -148,5 +165,21 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     });
+
+    window.editMessage = function(id) {
+        document.getElementById(`message-content-${id}`).style.display = 'none';
+        document.getElementById(`edit-form-${id}`).style.display = 'block';
+    }
+
+    window.cancelEdit = function(id) {
+        document.getElementById(`edit-form-${id}`).style.display = 'none';
+        document.getElementById(`message-content-${id}`).style.display = 'block';
+    }
+
+    window.deleteMessage = function(id) {
+        if (confirm("このメッセージを削除しますか？")) {
+            document.getElementById(`delete-form-${id}`).submit();
+        }
+    }
 </script>
 @endsection
