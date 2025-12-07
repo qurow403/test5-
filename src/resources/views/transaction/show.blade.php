@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{{ asset('css/chat-modal.css') }}">
 @endsection
 
+
 @section('content')
 <div class="chat-page">
 
@@ -27,11 +28,32 @@
             <img src="{{ asset('images/default-user.png') }}" class="user-icon">
             <span class="header-text">「{{ $partner->name }}」さんとの取引画面</span>
 
-            @if(!$isSeller)
-                <button type="button" class="complete-btn" id="open-rating-modal">
-                    取引を完了する
-                </button>
-            @endif
+            <button type="button" class="complete-btn" id="open-rating-modal">
+                取引を完了する
+            </button>
+
+            <div id="rating-modal" class="rating-modal">
+                <div class="modal-content">
+
+                    <h2>取引が完了しました。</h2>
+                    <p>今回の取引相手はどうでしたか？</p>
+
+                    <div class="stars" data-transaction-id="{{ $transaction->id }}">
+                        @for ($i = 1; $i <= 5; $i++)
+                            <span class="star" data-value="{{ $i }}">★</span>
+                        @endfor
+                    </div>
+
+                    <form action="{{ route('rating.submit') }}" method="POST" class="rating-form">
+                        @csrf
+                        <input type="hidden" name="transaction_id" value="{{ $transaction->id }}">
+                        <input type="hidden" name="rating" class="rating-value">
+                        <input type="hidden" name="role" value="{{ $isSeller ? 'seller' : 'buyer' }}">
+                        <button type="submit" class="submit-btn">送信する</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
 
         <div class="item-info">
@@ -45,6 +67,7 @@
         <div class="messages">
             @foreach($messages as $message)
                 <div class="message-row {{ $message->user_id === Auth::id() ? 'right' : 'left' }}">
+
                     @if($message->user_id !== Auth::id())
                         <img src="{{ asset('images/default-user.png') }}" class="message-icon">
                     @endif
@@ -56,7 +79,7 @@
                             {{ $message->body }}
                         </div>
 
-                        <form action="{{ route('chat.update', $message->id) }}" method="POST" style="display:none;" id="edit-form-{{ $message->id }}">
+                        <form action="{{ route('chat.update', $message->id) }}" method="POST" id="edit-form-{{ $message->id }}" style="display:none;">
                             @csrf
                             @method('PATCH')
                             <input type="text" name="body" value="{{ $message->body }}" class="edit-input">
@@ -69,9 +92,9 @@
                                 <span class="edit-btn" onclick="editMessage({{ $message->id }})">編集</span>
 
                                 <form id="delete-form-{{ $message->id }}" action="{{ route('chat.destroy', $message->id) }}" method="POST" style="display:none;">
-                                    @csrf
-                                    @method('DELETE')
+                                    @csrf @method('DELETE')
                                 </form>
+
                                 <span class="delete-btn" onclick="deleteMessage({{ $message->id }})">削除</span>
                             </div>
                         @endif
@@ -96,65 +119,107 @@
 
 </div>
 
-@if(!$isSeller)
-    @include('layouts.rating-modal', ['transaction' => $transaction, 'isSeller' => $isSeller])
-@endif
-
-@if($isSeller && $transaction->buyer_rated_at)
-    @include('layouts.rating-modal', ['transaction' => $transaction, 'isSeller' => $isSeller])
-@endif
-
 @endsection
+
+
 
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const imageBtn = document.querySelector('.image-btn');
+
+    const imgBtn = document.querySelector('.image-btn');
     const fileInput = document.getElementById('chat-image');
-    if (imageBtn && fileInput) {
-        imageBtn.addEventListener('click', () => fileInput.click());
+    if (imgBtn && fileInput) {
+        imgBtn.addEventListener('click', () => fileInput.click());
     }
 
-    const btn = document.getElementById('open-rating-modal');
+    const openBtn = document.getElementById('open-rating-modal');
     const modal = document.getElementById('rating-modal');
 
-    if (btn && modal) {
-        btn.addEventListener('click', () => modal.classList.add('show'));
-    }
+    openBtn?.addEventListener('click', () => {
+        modal.classList.add('show');
+    });
 
-    const chatInput = document.querySelector('.chat-input');
-    if (chatInput) {
-        let timer = null;
-        chatInput.addEventListener('input', () => {
-            clearTimeout(timer);
-            timer = setTimeout(() => saveDraft(chatInput.value), 500);
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+    });
+
+    const form = modal.querySelector('.rating-form');
+    const stars = modal.querySelectorAll('.star');
+    const ratingInput = form.querySelector('.rating-value');
+
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            const rating = star.dataset.value;
+            ratingInput.value = rating;
+
+            stars.forEach(s => s.classList.remove('selected'));
+            for (let i = 0; i < rating; i++) stars[i].classList.add('selected');
         });
-    }
-    function saveDraft(body) {
-        fetch("{{ route('chat.draft', $transaction->id) }}", {
-            method: "POST",
+    });
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        if (!ratingInput.value) {
+            alert("評価を選択してください");
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
             headers: {
-                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                "Content-Type": "application/json"
+                'X-CSRF-TOKEN': form.querySelector('input[name=_token]').value
             },
-            body: JSON.stringify({ body })
+            body: formData
+        })
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+        .then(data => {
+            alert('評価を送信しました');
+            window.location.href = "{{ route('items.index') }}";
+        })
+        .catch(err => {
+            console.error(err);
+            alert('送信に失敗しました');
+        });
+    });
+
+    const msgBox = document.querySelector('.messages');
+    if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+
+
+    const input = document.querySelector('.chat-input');
+    if (input) {
+        let timer;
+        input.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                fetch("{{ route('chat.draft', $transaction->id) }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ body: input.value })
+                });
+            }, 500);
         });
     }
 
-    const messagesContainer = document.querySelector('.messages');
-    if (messagesContainer) {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
 });
+
 
 function editMessage(id) {
     document.getElementById(`message-content-${id}`).style.display = 'none';
     document.getElementById(`edit-form-${id}`).style.display = 'block';
 }
+
 function cancelEdit(id) {
     document.getElementById(`edit-form-${id}`).style.display = 'none';
     document.getElementById(`message-content-${id}`).style.display = 'block';
 }
+
 function deleteMessage(id) {
     if (confirm("このメッセージを削除しますか？")) {
         document.getElementById(`delete-form-${id}`).submit();

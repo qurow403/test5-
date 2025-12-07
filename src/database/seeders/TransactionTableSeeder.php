@@ -24,23 +24,14 @@ class TransactionTableSeeder extends Seeder
         foreach ($itemsA as $item) {
             Transaction::create([
                 'item_id' => $item->id,
-                'buyer_id' => $userB->id,
-                'seller_id' => $userA->id,
+                'buyer_id' => $userB->id,   // buyer = B
+                'seller_id' => $userA->id,  // seller = A
                 'status' => 'chatting',
+                'buyer_rated_at' => null,
+                'seller_rated_at' => null,
             ]);
         }
 
-        $itemsB = Item::where('user_id', $userB->id)->get();
-
-        foreach ($itemsB as $item) {
-            Transaction::create([
-                'item_id' => $item->id,
-                'buyer_id' => $userA->id,
-                'seller_id' => $userB->id,
-                'status' => 'chatting',
-            ]);
-        }
-
-        $this->command->info('Transaction データを作成しました。');
+        $this->command->info('Transaction データを作成しました（A→B の一方向に統一）。');
     }
 }

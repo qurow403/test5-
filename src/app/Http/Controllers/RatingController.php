@@ -27,11 +27,18 @@ class RatingController extends Controller
             $transaction->seller_rated_at = now();
         }
 
+        if ($transaction->buyer_rated_at && $transaction->seller_rated_at) {
+            $transaction->is_completed = true;
+        }
+
         $transaction->save();
 
         $recipientEmail = $transaction->item->user->email;
         Mail::to($recipientEmail)->send(new TransactionCompletedMail($transaction));
 
-        return redirect()->route('items.index')->with('success', '評価を送信しました');
+        return response()->json([
+            'success' => true,
+            'message' => '評価を送信しました'
+        ]);
     }
-}
+}https://jmanga.online/manga/1774

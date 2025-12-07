@@ -22,9 +22,18 @@ class ChatController extends Controller
         $isSeller = $transaction->seller_id === $userId;
         $partner = $isSeller ? $transaction->buyer : $transaction->seller;
 
-        $draft = session()->get("chat_draft_$transactionId", '');
+        $showBuyerRatingModal = false;
+        $showSellerRatingModal = false;
 
-        $needsRating = !$transaction->is_completed;
+        if (!$isSeller && !$transaction->buyer_rated_at) {
+            $showBuyerRatingModal = true;
+        }
+
+        if ($isSeller && $transaction->buyer_rated_at && !$transaction->seller_rated_at) {
+            $showSellerRatingModal = true;
+        }
+
+        $draft = session()->get("chat_draft_$transactionId", '');
 
         $items = $userId === $transaction->seller_id
             ? $transaction->seller->items()->where('items.id', '!=', $transaction->item_id)->get()
@@ -36,10 +45,11 @@ class ChatController extends Controller
             'transaction',
             'partner',
             'isSeller',
-            'needsRating',
             'items',
             'draft',
-            'messages'
+            'messages',
+            'showBuyerRatingModal',
+            'showSellerRatingModal'
         ));
     }
 
