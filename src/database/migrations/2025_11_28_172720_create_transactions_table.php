@@ -33,6 +33,8 @@ class CreateTransactionsTable extends Migration
             $table->timestamp('buyer_rated_at')->nullable();
             $table->timestamp('seller_rated_at')->nullable();
 
+            $table->boolean('is_completed')->default(false);
+
             $table->string('shipping_name')->nullable();
             $table->string('shipping_postcode')->nullable();
             $table->string('shipping_address')->nullable();

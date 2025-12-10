@@ -1,10 +1,14 @@
 .header {
     background: black;
+    padding: 5px 10px;
 }
 
 .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin: 0 auto;
-    padding: 5px 5px 5px 10px
+    padding: 5px 10px;
 }
 
 .header__logo {
@@ -13,3 +17,49 @@
     font-size: 24px;
 }
 
+.search-form {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.search-form__item-input {
+    padding: 5px 10px;
+    width: 400px;
+    max-width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav a,
+.nav button {
+    color: white;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.btn-sell {
+    margin-left: 50px;
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid black;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px 12px;
+    text-decoration: none;
+}

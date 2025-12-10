@@ -49,7 +49,6 @@ class ProfileController extends Controller
         ->get();
 
         $inProgressItems = $transactions->map(function ($tx) use ($user) {
-
             $messages = $tx->chatMessages ?? collect();
             $lastMessage = $messages->sortByDesc('created_at')->first();
 
@@ -68,11 +67,34 @@ class ProfileController extends Controller
         ->sortByDesc('last_message_time')
         ->values();
 
-            return view('profile.mypage', compact(
-                'soldItems',
-                'purchasedItems',
-                'inProgressItems'
-            ));
+        $unreadTotal = $inProgressItems->sum('unread_count');
+
+        $sellerRatingAvg = Transaction::where('seller_id', $user->id)
+            ->whereNotNull('seller_rating')
+            ->avg('seller_rating');
+        $sellerRatingCount = Transaction::where('seller_id', $user->id)
+            ->whereNotNull('seller_rating')
+            ->count();
+        $sellerRatingAvg = $sellerRatingAvg ? round($sellerRatingAvg) : 0;
+
+        $buyerRatingAvg = Transaction::where('buyer_id', $user->id)
+            ->whereNotNull('buyer_rating')
+            ->avg('buyer_rating');
+        $buyerRatingCount = Transaction::where('buyer_id', $user->id)
+            ->whereNotNull('buyer_rating')
+            ->count();
+        $buyerRatingAvg = $buyerRatingAvg ? round($buyerRatingAvg) : 0;
+
+    return view('profile.mypage', compact(
+            'soldItems',
+            'purchasedItems',
+            'inProgressItems',
+            'unreadTotal',
+            'sellerRatingAvg',
+            'sellerRatingCount',
+            'buyerRatingAvg',
+            'buyerRatingCount'  // ←ここを追加
+        ));
     }
 
     public function sell()

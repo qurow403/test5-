@@ -12,21 +12,19 @@
 <body>
     <header class="header">
         <div class="header__inner">
-            <img src="{{ asset('images/logo.png') }}" alt="COACHTECH" class="logo">
-            <form action="{{ route('items.index') }}" class="search-form" method="GET">
-            <input type="text" name="keyword" class="search-form__item-input" value="{{ old('keyword') }}" placeholder="なにをお探しですか？">
-            <button type="submit">検索</button>
+
+            <div class="header__logo">COACHTECH</div>
+
+            <form action="" method="GET" class="search-form">
+                <input type="text" name="keyword" class="search-form__item-input" value="{{ old('keyword') }}" placeholder="なにをお探しですか？">
+                <button type="submit">検索</button>
             </form>
 
             <nav class="nav">
-                <!-- ログアウトフォーム -->
                 <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf
-                    <button type="submit" class="btn btn-link" style="background: none; border: none; color: #007bff; cursor: pointer; padding: 0; text-decoration: underline;">
-                        ログアウト
-                    </button>
+                    <button type="submit">ログアウト</button>
                 </form>
-
                 <a href="{{ route('profile.mypage') }}">マイページ</a>
                 <a href="{{ route('profile.sell') }}" class="btn-sell">出品</a>
             </nav>

@@ -24,11 +24,12 @@ class TransactionTableSeeder extends Seeder
         foreach ($itemsA as $item) {
             Transaction::create([
                 'item_id' => $item->id,
-                'buyer_id' => $userB->id,   // buyer = B
-                'seller_id' => $userA->id,  // seller = A
+                'buyer_id' => $userB->id,
+                'seller_id' => $userA->id,
                 'status' => 'chatting',
                 'buyer_rated_at' => null,
                 'seller_rated_at' => null,
+                'is_completed' => false,
             ]);
         }
 

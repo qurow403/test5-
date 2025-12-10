@@ -19,7 +19,8 @@ class ChatController extends Controller
         $transaction = Transaction::with(['item', 'buyer', 'seller', 'chatMessages.user'])
             ->findOrFail($transactionId);
 
-        $isSeller = $transaction->seller_id === $userId;
+        $isSeller = ($transaction->seller_id === $userId);
+
         $partner = $isSeller ? $transaction->buyer : $transaction->seller;
 
         $showBuyerRatingModal = false;
@@ -30,7 +31,7 @@ class ChatController extends Controller
         }
 
         if ($isSeller && $transaction->buyer_rated_at && !$transaction->seller_rated_at) {
-            $showSellerRatingModal = true;
+        $showSellerRatingModal = true;
         }
 
         $draft = session()->get("chat_draft_$transactionId", '');
