@@ -27,11 +27,11 @@
 開発時に利用できるテストユーザーが DatabaseSeeder 経由で自動作成されます。
 UserTableSeeder により、以下のユーザーが登録されます。
 
-- User A
+- User A(出品者)
   email: userA@example.com
   password: password123
 
-- User B
+- User B(購入者)
   email: userB@example.com
   password: password123
 
@@ -41,6 +41,10 @@ UserTableSeeder により、以下のユーザーが登録されます。
 
 これらのユーザーは php artisan db:seed 実行時に作成されます。
 開発時のログイン確認は上記のテストユーザーで行えます。
+
+出品者（User A）・購入者（User B）の双方が相手を評価できる仕様のため、
+出品者側にも「取引を完了する」ボタンを表示しています。
+Figma 上には UI がありませんが、実装上は双方評価可能です。
 
 
 ・使用技術
